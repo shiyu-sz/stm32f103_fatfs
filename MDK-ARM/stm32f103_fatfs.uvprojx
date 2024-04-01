@@ -18,7 +18,7 @@
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F1xx_DFP.2.4.1</PackID>
           <PackURL>https://www.keil.com/pack/</PackURL>
-          <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) CPUTYPE("Cortex-M3") TZ</Cpu>
+          <Cpu>IRAM(0x20000000-0x20004FFF) IROM(0x8000000-0x800FFFF)  CLOCK(8000000) CPUTYPE("Cortex-M3") TZ</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
           <FlashDriverDll></FlashDriverDll>
@@ -430,6 +430,11 @@
           <GroupName>Application/User/FATFS/Target</GroupName>
           <Files>
             <File>
+              <FileName>user_diskio_spi.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FATFS\Target\user_diskio_spi.c</FilePath>
+            </File>
+            <File>
               <FileName>user_diskio.c</FileName>
               <FileType>1</FileType>
               <FilePath>../FATFS/Target/user_diskio.c</FilePath>
@@ -580,5 +585,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>stm32f103_fatfs</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

@@ -26,6 +26,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +58,69 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void fatfs_test()
+{
+  //some variables for FatFs
+    FATFS FatFs; 	//Fatfs handle
+    FIL fil; 		//File handle
+    FRESULT fres; //Result after operations
+	
+    fres = f_mount(&FatFs, "", 1); //1=mount now
+    if(fres != FR_OK)
+    {
+        printf("f_mount error (%i)\r\n", fres);
+        return;
+    }
 
+    //Let's get some statistics from the SD card
+    DWORD free_clusters, free_sectors, total_sectors;
+
+    FATFS* getFreeFs;
+
+    fres = f_getfree("", &free_clusters, &getFreeFs);
+    if(fres != FR_OK)
+    {
+        printf("f_getfree error (%i)\r\n", fres);
+        return;
+    }
+    //Formula comes from ChaN's documentation
+    total_sectors = (getFreeFs->n_fatent - 2) * getFreeFs->csize;
+    free_sectors = free_clusters * getFreeFs->csize;
+
+    printf("SD card stats:\r\n%10lu KiB total drive space.\r\n%10lu KiB available.\r\n", total_sectors / 2, free_sectors / 2);
+		printf("SD Total Size:%d MB SD  Free Size:%d\r\n",  total_sectors / 2048, free_sectors / 2048);
+
+    //Now let's try and write a file "write.txt"
+    fres = f_open(&fil, "write.txt", FA_WRITE | FA_OPEN_ALWAYS | FA_CREATE_ALWAYS);
+    if(fres == FR_OK)
+    {
+        printf("I was able to open 'write.txt' for writing\r\n");
+    }
+    else
+    {
+        printf("f_open error (%i)\r\n", fres);
+    }
+
+    BYTE readBuf[16];
+    //Copy in a string
+    strncpy((char*)readBuf, "a new file is made!", 19);
+    UINT bytesWrote;
+    fres = f_write(&fil, readBuf, 19, &bytesWrote);
+    if(fres == FR_OK)
+    {
+        printf("Wrote %i bytes to 'write.txt'!\r\n", bytesWrote);
+    }
+    else
+    {
+        printf("f_write error (%i)\r\n", fres);
+    }
+
+    //Be a tidy kiwi - don't forget to close your file!
+    f_close(&fil);
+
+    //We're done, so de-mount the drive
+    f_mount(NULL, "", 0);
+}
 /* USER CODE END 0 */
 
 /**
@@ -92,7 +155,9 @@ int main(void)
   MX_USART1_UART_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-	printf("start app...\r\n");
+	printf("start app1...\r\n");
+  fatfs_test();
+	printf("start app2...\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
