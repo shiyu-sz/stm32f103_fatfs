@@ -3,3 +3,5 @@ MDK-ARM/stm32f103_fatfs
 MDK-ARM/DebugConfig
 *.lst
 *.97158
+MDK-ARM/JLinkLog.txt
+MDK-ARM/JLinkSettings.ini
