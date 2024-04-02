@@ -27,6 +27,7 @@
 /* USER CODE BEGIN Includes */
 #include <stdio.h>
 #include <string.h>
+#include "user_diskio_spi.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +59,19 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void printf_bin(char *str, uint8_t *data, int len)
+{
+	printf("%s", str);
+	for(int i=0; i<len; i++) {
+		if( i % 16 == 0 ) {
+			printf("\r\n");
+			printf("%#6x : ", i);
+		}
+		printf("%02x ", data[i]);
+	}
+	printf("\r\n");
+}
+
 void fatfs_test()
 {
   //some variables for FatFs
@@ -121,6 +135,30 @@ void fatfs_test()
     //We're done, so de-mount the drive
     f_mount(NULL, "", 0);
 }
+
+void sd_raw_test()
+{
+  int ret = 0;
+  uint8_t write_buff[10];
+  uint8_t read_buff[10];
+
+  ret = USER_SPI_initialize(0);
+  printf("sd init status = (%d)\r\n", ret);
+
+  for (int i = 0; i < 10; i++)
+  {
+    write_buff[i] = i;
+  }
+  
+  ret = USER_SPI_write(0, write_buff, 10, 10);
+  printf("sd write status = (%d)\r\n", ret);
+
+  ret = USER_SPI_read(0, read_buff, 10, 10);
+  printf("sd read status = (%d)\r\n", ret);
+
+  printf_bin("read = ", read_buff, 10);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -153,10 +191,11 @@ int main(void)
   MX_GPIO_Init();
   MX_SPI1_Init();
   MX_USART1_UART_Init();
-  MX_FATFS_Init();
+  // MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
 	printf("start app1...\r\n");
-  fatfs_test();
+  // fatfs_test();
+  sd_raw_test();
 	printf("start app2...\r\n");
   /* USER CODE END 2 */
 
