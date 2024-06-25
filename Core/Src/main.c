@@ -59,6 +59,11 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int count = 0;
+int ret = 0;
+uint8_t write_buff[512];
+uint8_t read_buff[512];
+
 void printf_bin(char *str, uint8_t *data, int len)
 {
 	printf("%s", str);
@@ -138,10 +143,6 @@ void fatfs_test()
 
 void sd_raw_test()
 {
-  int ret = 0;
-  uint8_t write_buff[10];
-  uint8_t read_buff[10];
-
   ret = USER_SPI_initialize(0);
   printf("sd init status = (%d)\r\n", ret);
 
@@ -150,10 +151,10 @@ void sd_raw_test()
     write_buff[i] = i;
   }
   
-  ret = USER_SPI_write(0, write_buff, 10, 10);
+  ret = USER_SPI_write(0, write_buff, 0, 1);
   printf("sd write status = (%d)\r\n", ret);
 
-  ret = USER_SPI_read(0, read_buff, 10, 10);
+  ret = USER_SPI_read(0, read_buff, 0, 1);
   printf("sd read status = (%d)\r\n", ret);
 
   printf_bin("read = ", read_buff, 10);
@@ -167,6 +168,7 @@ void sd_raw_test()
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -195,8 +197,10 @@ int main(void)
   /* USER CODE BEGIN 2 */
 	printf("start app1...\r\n");
   // fatfs_test();
-  sd_raw_test();
-	printf("start app2...\r\n");
+  // sd_raw_test();
+
+  ret = USER_SPI_initialize(0);
+  printf("sd init status = (%d)\r\n", ret);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -206,6 +210,24 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    for (int i = 0; i < 10; i++)
+    {
+      write_buff[i] = count+i;
+    }
+
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    ret = USER_SPI_write(0, write_buff, count*512, 1);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    printf("sd write status = (%d)\r\n", ret);
+
+    // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
+    ret = USER_SPI_read(0, read_buff, count*512, 1);
+    // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_RESET);
+    printf("sd read status = (%d)\r\n", ret);
+    printf_bin("read = ", read_buff, 10);
+
+    count ++;
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
